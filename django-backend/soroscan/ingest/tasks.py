@@ -160,8 +160,6 @@ def dispatch_webhook(self, subscription_id: int, event_id: int) -> bool:
         ``True`` on successful delivery, ``False`` when the subscription is
         absent/inactive (no retry in that case).
     """
-    from .models import WebhookDeliveryLog  # local import avoids circular at module level
-
     # ------------------------------------------------------------------ #
     # 1. Fetch subscription — skip silently if gone / inactive / suspended #
     # ------------------------------------------------------------------ #

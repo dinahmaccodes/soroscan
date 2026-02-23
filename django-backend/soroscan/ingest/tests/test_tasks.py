@@ -3,7 +3,6 @@ Tests for Celery tasks — webhook dispatch, retry logic, HMAC signing, suspensi
 """
 import hashlib
 import hmac
-import json
 
 import pytest
 import requests
