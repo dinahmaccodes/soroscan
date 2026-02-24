@@ -13,15 +13,18 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 from django.urls import path
-from strawberry.channels import GraphQLWSConsumer
-
-from soroscan.ingest.routing import websocket_urlpatterns
-from soroscan.ingest.schema import schema
-from soroscan.subscription_middleware import SubscriptionRateLimitMiddleware
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "soroscan.settings")
 
+# Initialize Django ASGI application early to ensure AppRegistry is populated
+# before importing code that may rely on Django models
 django_asgi_app = get_asgi_application()
+
+# Import after Django initialization to avoid AppRegistry errors
+from strawberry.channels import GraphQLWSConsumer
+from soroscan.ingest.routing import websocket_urlpatterns
+from soroscan.ingest.schema import schema
+from soroscan.subscription_middleware import SubscriptionRateLimitMiddleware
 
 # Create the GraphQL WebSocket consumer with rate limiting
 graphql_ws_consumer = SubscriptionRateLimitMiddleware(

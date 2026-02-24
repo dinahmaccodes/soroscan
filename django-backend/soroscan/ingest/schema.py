@@ -355,8 +355,11 @@ class Subscription:
         Yields:
             EventType: Real-time contract events as they occur
         """
+        from channels.db import database_sync_to_async
+        
         channel_layer = get_channel_layer()
         if not channel_layer:
+            # If no channel layer, exit gracefully
             return
             
         channel_name = await channel_layer.new_channel()
@@ -372,8 +375,6 @@ class Subscription:
                 # Create EventType from the message data
                 try:
                     # Fetch the actual event from database to get proper EventType instance
-                    from channels.db import database_sync_to_async
-                    
                     @database_sync_to_async
                     def get_event():
                         return ContractEvent.objects.select_related("contract").get(

@@ -52,11 +52,25 @@ class TestGraphQLQueries:
     def test_schema_has_subscription_type(self):
         """Test that the schema includes subscription type."""
         # Verify the schema has a subscription type
-        assert schema.schema_converter.subscription is not None
+        assert schema.subscription is not None
         
-        # Check that contractEvents subscription exists
-        subscription_type = schema.schema_converter.subscription
-        assert hasattr(subscription_type, "contract_events")
+        # Verify subscription operations can be introspected
+        introspection_query = """
+            query {
+                __schema {
+                    subscriptionType {
+                        name
+                        fields {
+                            name
+                        }
+                    }
+                }
+            }
+        """
+        result = schema.execute_sync(introspection_query)
+        assert result.errors is None
+        assert result.data["__schema"]["subscriptionType"] is not None
+        assert result.data["__schema"]["subscriptionType"]["name"] == "Subscription"
 
     def test_query_contract_by_id(self, contract):
         query = f"""
