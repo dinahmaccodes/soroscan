@@ -49,6 +49,15 @@ class TestGraphQLQueries:
         assert len(result.data["contracts"]) == 1
         assert result.data["contracts"][0]["isActive"] is True
 
+    def test_schema_has_subscription_type(self):
+        """Test that the schema includes subscription type."""
+        # Verify the schema has a subscription type
+        assert schema.schema_converter.subscription is not None
+        
+        # Check that contractEvents subscription exists
+        subscription_type = schema.schema_converter.subscription
+        assert hasattr(subscription_type, "contract_events")
+
     def test_query_contract_by_id(self, contract):
         query = f"""
             query {{

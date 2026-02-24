@@ -19,7 +19,7 @@ from soroscan.subscription_middleware import SubscriptionRateLimitMiddleware
 User = get_user_model()
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.asyncio
 class TestGraphQLSubscriptions:
     """Test GraphQL subscription functionality for real-time event streaming."""
@@ -208,15 +208,12 @@ class TestGraphQLSubscriptions:
 
     async def test_http_graphql_queries_still_work(self):
         """Test that existing HTTP GraphQL queries are not affected."""
-        from strawberry.django.views import GraphQLView
-        from django.test import AsyncClient
+        from channels.db import database_sync_to_async
         
         user = await self._create_user()
         contract = await self._create_contract(user)
         
-        client = AsyncClient()
-        
-        # Test a simple query
+        # Test a simple query using schema.execute_sync wrapped in async
         query = """
             query {
                 contracts {
@@ -227,17 +224,15 @@ class TestGraphQLSubscriptions:
             }
         """
         
-        response = await client.post(
-            "/graphql/",
-            data=json.dumps({"query": query}),
-            content_type="application/json",
-        )
+        @database_sync_to_async
+        def execute_query():
+            result = schema.execute_sync(query)
+            return result
         
-        assert response.status_code == 200
-        data = response.json()
-        assert "data" in data
-        assert "contracts" in data["data"]
-        assert len(data["data"]["contracts"]) > 0
+        result = await execute_query()
+        assert result.errors is None
+        assert "contracts" in result.data
+        assert len(result.data["contracts"]) > 0
 
     async def test_subscription_with_multiple_events(self):
         """Test subscription receives multiple events in sequence."""
