@@ -21,10 +21,12 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "soroscan.settings")
 django_asgi_app = get_asgi_application()
 
 # Import after Django initialization to avoid AppRegistry errors
-from strawberry.channels import GraphQLWSConsumer
-from soroscan.ingest.routing import websocket_urlpatterns
-from soroscan.ingest.schema import schema
-from soroscan.subscription_middleware import SubscriptionRateLimitMiddleware
+from soroscan.ingest.routing import websocket_urlpatterns  # noqa: E402
+from soroscan.ingest.schema import schema  # noqa: E402
+from soroscan.subscription_middleware import (  # noqa: E402
+    SubscriptionRateLimitMiddleware,
+)
+from strawberry.channels import GraphQLWSConsumer  # noqa: E402
 
 # Create the GraphQL WebSocket consumer with rate limiting
 graphql_ws_consumer = SubscriptionRateLimitMiddleware(

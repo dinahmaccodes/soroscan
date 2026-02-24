@@ -2,11 +2,8 @@
 Integration tests for GraphQL subscription support.
 """
 import asyncio
-import json
-from typing import Any
 
 import pytest
-from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
@@ -163,9 +160,6 @@ class TestGraphQLSubscriptions:
 
     async def test_rate_limiting_max_subscriptions(self):
         """Test that rate limiting prevents more than 5 concurrent subscriptions per IP."""
-        user = await self._create_user()
-        contract = await self._create_contract(user)
-        
         # Reset rate limit tracking
         SubscriptionRateLimitMiddleware._active_subscriptions.clear()
         
@@ -212,7 +206,7 @@ class TestGraphQLSubscriptions:
         from channels.db import database_sync_to_async
         
         user = await self._create_user()
-        contract = await self._create_contract(user)
+        await self._create_contract(user)
         
         # Test a simple query using schema.execute_sync wrapped in async
         query = """

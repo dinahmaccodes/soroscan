@@ -5,7 +5,6 @@ import logging
 from collections import defaultdict
 from typing import Any
 
-from strawberry.channels import GraphQLWSConsumer
 
 logger = logging.getLogger(__name__)
 
